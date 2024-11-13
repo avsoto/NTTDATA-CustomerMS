@@ -1,0 +1,133 @@
+openapi: 3.0.1
+info:
+  title: "Customer Management API"
+  description: "API to manage customers including CRUD operations with validation rules"
+  version: "1.0"
+servers:
+  - url: http://localhost:8080
+paths:
+  /customers:
+    post:
+      summary: "Create a new customer"
+      operationId: "createCustomer"
+      requestBody:
+        description: "Customer data to be created"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Customer"
+      responses:
+        '201':
+          description: "Customer successfully created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+    get:
+      summary: "Get all customers"
+      operationId: "getAllCustomers"
+      responses:
+        '200':
+          description: "List of all customers"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Customer"
+  /customers/{id}:
+    get:
+      summary: "Get a customer by ID"
+      operationId: "getCustomerById"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          description: "ID of the customer"
+          schema:
+            type: "integer"
+      responses:
+        '200':
+          description: "Customer details found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        '404':
+          description: "Customer not found"
+    put:
+      summary: "Update customer data"
+      operationId: "updateCustomer"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          description: "ID of the customer to update"
+          schema:
+            type: "integer"
+      requestBody:
+        description: "Customer data to update"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Customer"
+      responses:
+        '200':
+          description: "Customer successfully updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        '404':
+          description: "Customer not found"
+    delete:
+      summary: "Delete a customer"
+      operationId: "deleteCustomer"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          description: "ID of the customer to delete"
+          schema:
+            type: "integer"
+      responses:
+        '204':
+          description: "Customer successfully deleted"
+        '404':
+          description: "Customer not found"
+        '400':
+          description: "Customer cannot be deleted because they have active accounts"
+components:
+  schemas:
+    Customer:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          description: "Unique identifier for the customer"
+          example: 1
+        firstName:
+          type: "string"
+          description: "First name of the customer"
+          example: "John"
+        lastName:
+          type: "string"
+          description: "Last name of the customer"
+          example: "Doe"
+        dni:
+          type: "string"
+          description: "Unique DNI (Document Number) of the customer"
+          example: "12345678"
+        email:
+          type: "string"
+          description: "Email address of the customer"
+          example: "john.doe@email.com"
+      required:
+        - firstName
+        - lastName
+        - dni
+        - email
+      additionalProperties: false
+
