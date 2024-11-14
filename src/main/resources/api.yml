@@ -101,7 +101,7 @@ paths:
           description: "Customer cannot be deleted because they have active accounts"
 components:
   schemas:
-    Customer:
+    CustomerContract:
       type: "object"
       properties:
         id:

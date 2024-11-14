@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -27,36 +29,34 @@ public class CustomerController {
         return new ResponseEntity<>(customer, HttpStatus.CREATED);
     }
 
-
     @GetMapping("/{id}")
     public ResponseEntity<Customer> getCustomerById(@PathVariable Integer id){
-        Customer currentCustomer = customerService.getById(id);
-        if( currentCustomer == null){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        Optional<Customer> currentCustomer = customerService.getById(id);
 
-        return new ResponseEntity<>(currentCustomer, HttpStatus.OK);
+        return currentCustomer.map(customer -> new ResponseEntity<>(customer, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PutMapping
-    public ResponseEntity<Customer> putCustomer(@RequestBody Customer customer){
-        if (customerService.getById(customer.getId()) == null){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
 
-        customerService.update(customer.getId(), customer);
-
-        return new ResponseEntity<>(customer, HttpStatus.OK);
+    @PutMapping("/{id}")
+    public ResponseEntity<Customer> putCustomer(@PathVariable Integer id, @RequestBody Customer customer){
+        return customerService.getById(id)
+                .map(existingCustomer -> {
+                    customer.setId(id);
+                    customerService.update(id, customer);
+                    return new ResponseEntity<>(customer, HttpStatus.OK);
+                })
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Customer> deleteCustomer(@PathVariable Integer id){
-        if( customerService.getById(id) == null ){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        customerService.delete(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<Customer> deleteCustomer(@PathVariable Integer id) {
+        return customerService.getById(id)
+                .map(existingCustomer -> {
+                    customerService.delete(id);
+                    return new ResponseEntity<Customer>(HttpStatus.OK);  // Asegúrate de especificar el tipo correcto
+                })
+                .orElseGet(() -> new ResponseEntity<Customer>(HttpStatus.NOT_FOUND));  // Asegúrate de especificar el tipo correcto
     }
 
 
