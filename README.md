@@ -24,7 +24,8 @@ El microservicio **CustomerMS** proporciona los siguientes endpoints para gestio
     "lastName": "Doe Windsor",
     "email": "john@gmail.com",
     "dni": "55289600"
-}
+    }
+   ```
 
 ### 2. Listar Clientes
 - **Método**: `GET`
