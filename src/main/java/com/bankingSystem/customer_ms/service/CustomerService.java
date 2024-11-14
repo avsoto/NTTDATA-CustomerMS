@@ -4,13 +4,12 @@ import com.bankingSystem.customer_ms.model.Customer;
 import com.bankingSystem.customer_ms.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class CustomerService{
+public class CustomerService implements CrudService<Customer,Integer>{
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -22,39 +21,45 @@ public class CustomerService{
         this.validationService = validationService;
     }
 
-    public List<Customer> getAllCustomers() {
+    @Override
+    public List<Customer> getAll() {
         return customerRepository.findAll().stream().collect(Collectors.toList());
     }
 
-    public Optional<Customer> getCustomerById(int id) {
-        return customerRepository.findById(id);
+    @Override
+    public Customer getById(Integer id) {
+        return customerRepository.findById(id).orElse(null);
     }
 
-    public Optional<Customer> updateCustomerById(int id, Customer customer) {
+    @Override
+    public void update(Integer id, Customer customer) {
+
+        Customer existingCustomer = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer wasn't found with the DNI: " + id));
+
+
+        customer.setDni(existingCustomer.getDni());
+        customer.setId(existingCustomer.getId());
+
+        existingCustomer.setFirstName(customer.getFirstName());
+        existingCustomer.setLastName(customer.getLastName());
+        existingCustomer.setEmail(customer.getEmail());
+
+        customerRepository.save(existingCustomer);
+    }
+
+    @Override
+    public void create(Customer customer) {
         validationService.validateCustomerData(customer);
-
-        return customerRepository.findById(id).map(existingCustomer -> {
-            customer.setId(id);
-            return customerRepository.save(customer);
-        });
+        customerRepository.save(customer);
     }
 
-    public Customer createCustomer(Customer customer) {
-        validationService.validateCustomerData(customer);
-        return customerRepository.save(customer);
+    @Override
+    public void delete(Integer id) {
+        Customer existingCustomer = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found with the ID" + id));
+
+        customerRepository.delete(existingCustomer);
     }
-
-    public Optional<Customer> deleteCustomerById(int id) {
-        return customerRepository.findById(id)
-                .map(existingCustomer -> {
-                    customerRepository.delete(existingCustomer);  // Delete customer
-                    return existingCustomer;
-                });
-    }
-
-
-
-
-
 
 }
