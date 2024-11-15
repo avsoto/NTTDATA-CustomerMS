@@ -30,7 +30,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Customer> getCustomerById(@PathVariable Integer id){
+    public ResponseEntity<?> getCustomerById(@PathVariable Integer id){
         Optional<Customer> currentCustomer = customerService.getById(id);
 
         return currentCustomer.map(customer -> new ResponseEntity<>(customer, HttpStatus.OK))
@@ -42,7 +42,7 @@ public class CustomerController {
     public ResponseEntity<Customer> putCustomer(@PathVariable Integer id, @RequestBody Customer customer){
         return customerService.getById(id)
                 .map(existingCustomer -> {
-                    customer.setId(id);
+                    customer.setCustomerId(id);
                     customerService.update(id, customer);
                     return new ResponseEntity<>(customer, HttpStatus.OK);
                 })

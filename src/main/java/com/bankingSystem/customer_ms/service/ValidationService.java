@@ -23,7 +23,7 @@ public class ValidationService {
         validate(customer.getLastName(), field -> !field.isEmpty(), "LastName is required.");
         validate(customer.getDni(), dni -> dni.matches("[0-9]{8}"), "Invalid DNI format. It must contain exactly 8 digits.");
         validate(customer.getEmail(), email -> email.matches("^[A-Za-z0-9_.-]+@[A-Za-z0-9.-]+$"), "Invalid email format. It must follow the format 'user123@mail.com'");
-        validateUniqueDni(customer.getDni(), customer.getId());
+        validateUniqueDni(customer.getDni(), customer.getCustomerId());
     }
 
     private <T> void validate(T field, Predicate<T> predicate, String errorMessage) {
@@ -34,7 +34,7 @@ public class ValidationService {
 
     private void validateUniqueDni(String dni, Integer id) {
         customerRepository.findByDni(dni)
-                .filter(existingCustomer -> !existingCustomer.getId().equals(id))
+                .filter(existingCustomer -> !existingCustomer.getCustomerId().equals(id))
                 .ifPresent(existing -> {
                     throw new BusinessException("A client with this DNI already exists.");
                 });
