@@ -115,7 +115,9 @@ The **AccountMS** microservice provides the following endpoints to manage bank a
 This system follows a **microservices architecture**, where **AccountMS** communicates with other microservices, such as **CustomerMS**. Both microservices interact with a MySQL database for data persistence.
 
 ### Sequence Diagram
-The sequence diagrams illustrate the communication flow between the microservices during CRUD operations for accounts, ensuring that services remain decoupled and can scale independently.
+The sequence diagrams illustrate the communication flow during the creation of a customer.
+
+![Banking System UML Diagram](https://raw.githubusercontent.com/avsoto/NTTDATA-CustomerMS/refs/heads/main/diagram/secuenceDiagramCustomer.jpg)
 
 ## Technologies Used
 
