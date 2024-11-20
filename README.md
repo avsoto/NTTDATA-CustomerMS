@@ -1,168 +1,144 @@
-# AccountMS - Microservice for Account Management
+Here's the `README.md` file for the **Customer Microservice** in English:
 
-This repository contains the **AccountMS** microservice, which handles the creation, reading, updating, and deletion (CRUD) of bank accounts in the XYZ Bank system. This microservice is part of the **Project II - NTTDATA Bootcamp Tech Girls Power**, and is built using **Spring Boot** and **JPA/Hibernate**, connecting to a relational database (MySQL) for data persistence.
+---
 
-## System Requirements
+# Customer Microservice - NTTDATA Bootcamp Tech Girls Power
 
-- **Java 8+** or **Java 11+**
-- **Spring Boot 2.x**
-- **MySQL** for the database
-- **Postman** or any other tool to test API endpoints
+## Project Description
 
-## Microservice Functionalities
+This microservice is part of a banking system designed to manage customers. The **Customer Microservice** allows the creation, retrieval, update, and deletion of customer information, including their personal details such as name, surname, DNI (ID), and email. This service communicates with other microservices in the banking system, such as the **Account Microservice**, to provide an integrated banking management solution.
 
-The **AccountMS** microservice provides the following endpoints to manage bank accounts:
+## Features
 
-### 1. Create Account
-- **Method**: `POST`
-- **Endpoint**: `/accounts`
-- **Description**: Creates a new bank account for a customer.
-- **Request Body** (JSON):
+This microservice implements the following features:
+
+### Customer Management
+
+- **Create Customer**: Allows the creation of a new customer with the following attributes:
+  - `id` (Automatically generated)
+  - `firstName` (Required)
+  - `lastName` (Required)
+  - `dni` (Required, unique)
+  - `email` (Valid email format)
+
+  **Endpoint**:  
+  `POST /customers`  
+  Request body:
   ```json
   {
-    "accountType": "SAVINGS",
-    "balance": 0.0,
-    "customerId": 1
+    "firstName": "John",
+    "lastName": "Doe",
+    "dni": "12345678",
+    "email": "john.doe@example.com"
   }
   ```
 
-### 2. List Accounts
-- **Method**: `GET`
-- **Endpoint**: `/accounts`
-- **Description**: Retrieves a list of all bank accounts in the system.
-- **Response** (200 OK):
+- **Get All Customers**: Lists all customers in the system.
+
+  **Endpoint**:  
+  `GET /customers`  
+  Response:
   ```json
   [
     {
       "id": 1,
-      "accountNumber": "1234567890",
-      "balance": 1000.0,
-      "accountType": "SAVINGS",
-      "customerId": 1
-    },
-    {
-      "id": 2,
-      "accountNumber": "9876543210",
-      "balance": 500.0,
-      "accountType": "CHECKING",
-      "customerId": 2
+      "firstName": "John",
+      "lastName": "Doe",
+      "dni": "12345678",
+      "email": "john.doe@example.com"
     }
   ]
   ```
 
-### 3. Get Account by ID
-- **Method**: `GET`
-- **Endpoint**: `/accounts/{id}`
-- **Description**: Retrieves the details of a specific account by its ID.
-- **Path Parameter**: `id` - The unique identifier of the account.
-- **Successful Response** (200 OK):
+- **Get Customer by ID**: Retrieves details of a specific customer using their ID.
+
+  **Endpoint**:  
+  `GET /customers/{id}`  
+  Response:
   ```json
   {
     "id": 1,
-    "accountNumber": "1234567890",
-    "balance": 1000.0,
-    "accountType": "SAVINGS",
-    "customerId": 1
+    "firstName": "John",
+    "lastName": "Doe",
+    "dni": "12345678",
+    "email": "john.doe@example.com"
   }
   ```
 
-### 4. Deposit into Account
-- **Method**: `PUT`
-- **Endpoint**: `/accounts/{accountId}/deposit`
-- **Description**: Deposits an amount into a specific account.
-- **Path Parameter**: `accountId` - The ID of the account to deposit into.
-- **Request Body** (JSON):
+- **Update Customer**: Updates the data of an existing customer.
+
+  **Endpoint**:  
+  `PUT /customers/{id}`  
+  Request body:
   ```json
   {
-    "amount": 500.0
+    "firstName": "John",
+    "lastName": "Doe",
+    "dni": "87654321",
+    "email": "john.doe@newdomain.com"
   }
   ```
 
-### 5. Withdraw from Account
-- **Method**: `PUT`
-- **Endpoint**: `/accounts/{accountId}/withdraw`
-- **Description**: Withdraws an amount from a specific account.
-- **Path Parameter**: `accountId` - The ID of the account to withdraw from.
-- **Request Body** (JSON):
-  ```json
-  {
-    "amount": 200.0
-  }
-  ```
+- **Delete Customer**: Deletes a customer by their ID, with the restriction that a customer with active accounts cannot be deleted.
 
-### 6. Delete Account
-- **Method**: `DELETE`
-- **Endpoint**: `/accounts/{id}`
-- **Description**: Deletes a specific account from the system.
-- **Path Parameter**: `id` - The unique identifier of the account.
-- **Successful Response** (200 OK):
-  ```json
-  {
-    "message": "Account deleted successfully"
-  }
-  ```
+  **Endpoint**:  
+  `DELETE /customers/{id}`
 
 ## Business Rules
 
-- **Initial Account Balance**: The initial balance of an account should be greater than 0.
-- **Withdrawal Rules**:
-  - **Savings accounts**: Cannot have a negative balance after withdrawal.
-  - **Checking accounts**: Can have an overdraft limit of up to -500.
-
-## Architecture
-
-### Component Diagram
-This system follows a **microservices architecture**, where **AccountMS** communicates with other microservices, such as **CustomerMS**. Both microservices interact with a MySQL database for data persistence.
-
-### Sequence Diagram
-The sequence diagrams illustrate the communication flow during the creation of a customer.
-
-![Banking System UML Diagram](https://raw.githubusercontent.com/avsoto/NTTDATA-CustomerMS/refs/heads/main/diagram/secuenceDiagramCustomer.jpg)
+1. **Customer Validations**:
+  - Each customer must have a **unique DNI**.
+  - **Customers with active accounts** cannot be deleted.
 
 ## Technologies Used
 
-- **Spring Boot**: For developing the microservice.
-- **JPA/Hibernate**: For data persistence.
-- **MySQL**: As the relational database.
-- **OpenAPI**: For API documentation (contract-first).
-- **Java 8/11**: For applying both functional and object-oriented programming concepts.
+- **Spring Boot**: To create the microservice and manage business logic.
+- **JPA/Hibernate**: For data persistence using a relational database (MySQL).
+- **MySQL**: Relational database to store customer information.
+- **OpenAPI**: For documenting the API contract (using a Contract First approach).
+- **Java 8/11**: Object-Oriented Programming (OOP) and Functional Programming.
 
-## Installation and Execution
+## System Architecture
 
-### 1. Clone the Repository
+The microservice follows a microservices architecture where each component is independent but communicates with others:
 
-```bash
-git clone https://github.com/your-username/account-ms.git
-cd account-ms
-```
+- **Customer Microservice**: Manages customer information.
+- **Account Microservice**: Manages customer bank accounts (this service interacts with the **Account Microservice** to retrieve customer account details).
 
-### 2. Configure the Database
+### Component Diagram
 
-Ensure that MySQL is installed and create a database for the project:
+The system consists of several microservices that communicate with each other to provide full functionality. The **Customer Microservice** interacts with the **Account Microservice** to manage relationships between customers and accounts.
 
-```sql
-CREATE DATABASE accountms;
-```
+### Sequence Diagram
 
-### 3. Configure `application.properties`
+The communication flow between microservices follows a reactive and asynchronous process, where each microservice communicates with others via RESTful APIs.
 
-In the `src/main/resources/application.properties` file, configure the database credentials:
+![Banking System UML Diagram](https://raw.githubusercontent.com/avsoto/NTTDATA-CustomerMS/refs/heads/main/diagram/secuenceDiagramCustomer.jpg)
 
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/accountms
-spring.datasource.username=your-username
-spring.datasource.password=your-password
-spring.jpa.hibernate.ddl-auto=update
-```
+## Running the Service
 
-### 4. Run the Microservice
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/your-username/CustomerMicroservice.git
+   cd CustomerMicroservice
+   ```
 
-To run the microservice, use the following command:
+2. **Install Dependencies**:
+   If using Maven:
+   ```bash
+   mvn install
+   ```
 
-```bash
-mvn spring-boot:run
-```
+3. **Run the Microservice**:
+   To run the microservice, execute:
+   ```bash
+   mvn spring-boot:run
+   ```
 
-### 5. Test the Endpoints
-
-Use **Postman** or any similar tool to test the documented endpoints.
+4. **Testing**:
+   Use **Postman** to test the following endpoints:
+- `POST /customers` to create a new customer.
+- `GET /customers` to list all customers.
+- `GET /customers/{id}` to retrieve a customer by their ID.
+- `PUT /customers/{id}` to update a customer.
+- `DELETE /customers/{id}` to delete a customer.

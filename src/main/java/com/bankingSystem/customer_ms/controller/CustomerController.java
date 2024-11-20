@@ -37,7 +37,6 @@ public class CustomerController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-
     @PutMapping("/{id}")
     public ResponseEntity<Customer> putCustomer(@PathVariable Integer id, @RequestBody Customer customer){
         return customerService.getById(id)
@@ -54,9 +53,9 @@ public class CustomerController {
         return customerService.getById(id)
                 .map(existingCustomer -> {
                     customerService.delete(id);
-                    return new ResponseEntity<Customer>(HttpStatus.OK);  // Asegúrate de especificar el tipo correcto
+                    return new ResponseEntity<Customer>(HttpStatus.OK);
                 })
-                .orElseGet(() -> new ResponseEntity<Customer>(HttpStatus.NOT_FOUND));  // Asegúrate de especificar el tipo correcto
+                .orElseGet(() -> new ResponseEntity<Customer>(HttpStatus.NOT_FOUND));
     }
 
 

@@ -4,7 +4,6 @@ import com.bankingSystem.customer_ms.exceptions.BusinessException;
 import com.bankingSystem.customer_ms.model.Customer;
 import com.bankingSystem.customer_ms.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,6 @@ public class CustomerService implements CrudService<Customer,Integer>{
     @Value("${bankaccount.ms.url}")
     private String bankAccountMicroserviceUrl;
 
-    @Autowired
     private CustomerRepository customerRepository;
     private final ValidationService validationService;
     private final RestTemplate restTemplate;
@@ -32,7 +30,7 @@ public class CustomerService implements CrudService<Customer,Integer>{
 
     @Override
     public Optional<Customer> getById(Integer id) {
-        return customerRepository.findById(id);  // Devuelve un Optional<Customer>
+        return customerRepository.findById(id);
     }
 
     @Override
@@ -63,7 +61,7 @@ public class CustomerService implements CrudService<Customer,Integer>{
 
         Optional<Customer> customer = customerRepository.findById(customerId);
         if (customer.isPresent()) {
-            customerRepository.delete(customer.get());  // Elimina al cliente de la base de datos
+            customerRepository.delete(customer.get());
         } else {
             throw new BusinessException("Customer with ID " + customerId + " not found.");
         }
@@ -74,7 +72,7 @@ public class CustomerService implements CrudService<Customer,Integer>{
         String url = bankAccountMicroserviceUrl + "/customer/" + customerId + "/active";
         try {
             ResponseEntity<Boolean> response = restTemplate.exchange(url, HttpMethod.GET, null, Boolean.class);
-            return response.getBody() != null && response.getBody();  // Devuelve true si tiene cuentas
+            return response.getBody() != null && response.getBody();
         } catch (Exception e) {
             throw new BusinessException("Error connecting to bank account service: " + e.getMessage());
         }
