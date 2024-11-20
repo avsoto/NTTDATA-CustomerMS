@@ -1,7 +1,3 @@
-Here's the `README.md` file for the **Customer Microservice** in English:
-
----
-
 # Customer Microservice - NTTDATA Bootcamp Tech Girls Power
 
 ## Project Description
