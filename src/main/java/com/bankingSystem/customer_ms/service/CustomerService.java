@@ -19,7 +19,7 @@ public class CustomerService implements CrudService<Customer,Integer>{
     @Value("${bankaccount.ms.url}")
     private String bankAccountMicroserviceUrl;
 
-    private CustomerRepository customerRepository;
+    private final CustomerRepository customerRepository;
     private final ValidationService validationService;
     private final RestTemplate restTemplate;
 
@@ -48,9 +48,9 @@ public class CustomerService implements CrudService<Customer,Integer>{
     }
 
     @Override
-    public void create(Customer customer) {
+    public Customer create(Customer customer) {
         validationService.validateCustomerData(customer);
-        customerRepository.save(customer);
+        return customerRepository.save(customer);
     }
 
     @Override

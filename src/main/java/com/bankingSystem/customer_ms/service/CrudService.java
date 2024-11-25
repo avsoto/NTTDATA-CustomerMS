@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public interface CrudService<T, ID> {
 
-    void create(T t);
+    T create(T t);
 
     void update(ID id, T t);
 

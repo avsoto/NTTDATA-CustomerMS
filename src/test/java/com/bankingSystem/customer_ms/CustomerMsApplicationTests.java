@@ -8,6 +8,7 @@ class CustomerMsApplicationTests {
 
 	@Test
 	void contextLoads() {
+
 	}
 
 }
