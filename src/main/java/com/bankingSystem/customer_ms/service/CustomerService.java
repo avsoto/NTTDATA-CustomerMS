@@ -68,14 +68,22 @@ public class CustomerService implements CrudService<Customer,Integer>{
 
     }
 
-    private boolean hasActiveAccounts(Integer customerId) {
-        String url = bankAccountMicroserviceUrl + "/customer/" + customerId + "/active";
+    public boolean hasActiveAccounts(Integer customerId) {
+        String url = "http://localhost:8081/accounts" + "/customer/" + customerId + "/active";
+
         try {
             ResponseEntity<Boolean> response = restTemplate.exchange(url, HttpMethod.GET, null, Boolean.class);
-            return response.getBody() != null && response.getBody();
+            if (response == null || response.getBody() == null) {
+                throw new BusinessException("Error connecting to bank account service: Response is null or invalid");
+            }
+            return response.getBody();
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
-            throw new BusinessException("Error connecting to bank account service: " + e.getMessage());
+            throw new BusinessException("Exception:" + e.getMessage());
         }
     }
 
 }
+
+
