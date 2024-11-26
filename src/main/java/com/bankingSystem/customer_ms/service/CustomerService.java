@@ -40,11 +40,9 @@ public class CustomerService implements CrudService<Customer,Integer>{
                     existingCustomer.setFirstName(customer.getFirstName());
                     existingCustomer.setLastName(customer.getLastName());
                     existingCustomer.setEmail(customer.getEmail());
-                    return existingCustomer;
-                })
+                    return existingCustomer; })
                 .map(customerRepository::save)
                 .orElseThrow(() -> new BusinessException("Customer wasn't found with ID: " + id));
-
     }
 
     @Override
@@ -55,32 +53,27 @@ public class CustomerService implements CrudService<Customer,Integer>{
 
     @Override
     public void delete(Integer customerId) {
-        if (hasActiveAccounts(customerId)) {
-            throw new BusinessException("Cannot delete customer with active accounts.");
-        }
-
-        Optional<Customer> customer = customerRepository.findById(customerId);
-        if (customer.isPresent()) {
-            customerRepository.delete(customer.get());
-        } else {
-            throw new BusinessException("Customer with ID " + customerId + " not found.");
-        }
-
-    }
+        customerRepository.findById(customerId).filter(customer -> !hasActiveAccounts(customerId))
+                .ifPresentOrElse(
+                        customer -> customerRepository.delete(customer),
+                        () -> {
+                            if (hasActiveAccounts(customerId)) {
+                                throw new BusinessException("Cannot delete customer with active accounts.");
+                            }
+                            throw new BusinessException(String.format("Customer with ID %d not found.", customerId));
+                        });}
 
     public boolean hasActiveAccounts(Integer customerId) {
-        String url = "http://localhost:8081/accounts" + "/customer/" + customerId + "/active";
+        String url = "http://localhost:8081/accounts/customer/" + customerId + "/active";
 
         try {
             ResponseEntity<Boolean> response = restTemplate.exchange(url, HttpMethod.GET, null, Boolean.class);
-            if (response == null || response.getBody() == null) {
-                throw new BusinessException("Error connecting to bank account service: Response is null or invalid");
-            }
-            return response.getBody();
-        } catch (BusinessException e) {
-            throw e;
+
+            return Optional.ofNullable(response)
+                    .map(ResponseEntity::getBody)
+                    .orElseThrow(() -> new BusinessException("Error connecting to bank account service: Response is null or invalid"));
         } catch (Exception e) {
-            throw new BusinessException("Exception:" + e.getMessage());
+            throw new BusinessException("Exception: " + e.getMessage());
         }
     }
 

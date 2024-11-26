@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -221,7 +220,7 @@ class CustomerServiceTest {
                 () -> customerService.delete(customerId)
         );
 
-        assertEquals("Exception:Connection error", exception.getMessage());
+        assertEquals("Exception: Connection error", exception.getMessage());
     }
 
     @Test
@@ -296,7 +295,7 @@ class CustomerServiceTest {
             customerService.hasActiveAccounts(customerId);
         });
 
-        assertEquals("Error connecting to bank account service: Response is null or invalid", exception.getMessage());
+        assertEquals("Exception: Error connecting to bank account service: Response is null or invalid", exception.getMessage());
     }
 
     @Test
@@ -310,7 +309,7 @@ class CustomerServiceTest {
             customerService.hasActiveAccounts(customerId);
         });
 
-        assertEquals("Error connecting to bank account service: Response is null or invalid", exception.getMessage());
+        assertEquals("Exception: Error connecting to bank account service: Response is null or invalid", exception.getMessage());
     }
 
     @Test
@@ -325,6 +324,6 @@ class CustomerServiceTest {
             customerService.hasActiveAccounts(customerId);
         });
 
-        assertEquals("Mocked BusinessException", exception.getMessage());
+        assertEquals("Exception: Mocked BusinessException", exception.getMessage());
     }
 }
