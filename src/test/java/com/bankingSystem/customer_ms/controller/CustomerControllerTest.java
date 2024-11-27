@@ -3,6 +3,7 @@ package com.bankingSystem.customer_ms.controller;
 import com.bankingSystem.customer_ms.model.Customer;
 import com.bankingSystem.customer_ms.service.CustomerService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -30,7 +31,8 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testGetAllCustomers() {
+    @DisplayName("Should return a list of customers when successful")
+    void getAllCustomers_ShouldReturnListOfCustomers_WhenSuccessful() {
         List<Customer> mockCustomers = Arrays.asList(
                 Customer.builder()
                         .firstName("Ana")
@@ -56,7 +58,8 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testCreateCustomer() {
+    @DisplayName("Should return the created customer when successful")
+    void createCustomer_ShouldReturnCreatedCustomer_WhenSuccessful() {
         Customer customer = Customer.builder()
                 .firstName("Ana")
                 .lastName("Soto")
@@ -74,7 +77,8 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testGetCustomerById_Found() {
+    @DisplayName("Should return the customer when found by ID")
+    void getCustomerById_ShouldReturnCustomer_WhenFound() {
         Customer customer = Customer.builder()
                 .firstName("Ana")
                 .lastName("Soto")
@@ -92,7 +96,8 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testGetCustomerById_NotFound() {
+    @DisplayName("Should return NotFound when the customer is not found by ID")
+    void getCustomerById_ShouldReturnNotFound_WhenCustomerNotFound() {
         when(customerService.getById(1)).thenReturn(Optional.empty());
 
         ResponseEntity<?> response = customerController.getCustomerById(1);
@@ -102,7 +107,8 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testPutCustomer_Found() {
+    @DisplayName("Should return the updated customer when the customer is found and updated successfully")
+    void putCustomer_ShouldReturnUpdatedCustomer_WhenCustomerFound() {
         Customer existingCustomer = Customer.builder()
                 .firstName("Ana")
                 .lastName("Soto")
@@ -129,7 +135,8 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testPutCustomer_NotFound() {
+    @DisplayName("Should return NotFound when the customer to update is not found")
+    void putCustomer_ShouldReturnNotFound_WhenCustomerNotFound() {
         Customer updatedCustomer = Customer.builder()
                 .firstName("Victoria")
                 .lastName("Mejía")
@@ -147,7 +154,8 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testDeleteCustomer_Found() {
+    @DisplayName("Should return Ok when the customer is found and deleted successfully")
+    void deleteCustomer_ShouldReturnOk_WhenCustomerFound() {
         Customer customer = Customer.builder()
                 .firstName("Ana")
                 .lastName("Soto")
@@ -166,7 +174,8 @@ class CustomerControllerTest {
     }
 
     @Test
-    void testDeleteCustomer_NotFound() {
+    @DisplayName("Should return NotFound when the customer to delete is not found")
+    void deleteCustomer_ShouldReturnNotFound_WhenCustomerNotFound() {
         when(customerService.getById(1)).thenReturn(Optional.empty());
 
         ResponseEntity<Customer> response = customerController.deleteCustomer(1);
@@ -175,8 +184,4 @@ class CustomerControllerTest {
         verify(customerService, times(1)).getById(1);
         verify(customerService, times(0)).delete(anyInt());
     }
-
-
-
-
 }

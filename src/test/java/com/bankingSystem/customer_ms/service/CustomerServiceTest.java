@@ -5,6 +5,7 @@ import com.bankingSystem.customer_ms.model.Customer;
 import com.bankingSystem.customer_ms.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -44,7 +45,8 @@ class CustomerServiceTest {
     }
 
     @Test
-    public void create() {
+    @DisplayName("Should create a customer and return the created customer")
+    public void shouldCreateCustomerSuccessfully_WhenProvidedWithValidData() {
         Customer customer = Customer.builder()
                 .firstName("Ana")
                 .lastName("Soto")
@@ -70,7 +72,8 @@ class CustomerServiceTest {
     }
 
     @Test
-    public void getAll() {
+    @DisplayName("Should return all customers when customers exist")
+    public void getAll_ShouldReturnAllCustomers_WhenCustomersExist() {
         Customer customer1 = Customer.builder()
                 .firstName("Ana")
                 .lastName("Soto")
@@ -97,7 +100,8 @@ class CustomerServiceTest {
     }
 
     @Test
-    public void getById_CustomerExists() {
+    @DisplayName("Should return customer when customer exists")
+    public void getById_ShouldReturnCustomer_WhenCustomerExists() {
 
         Customer customer = Customer.builder()
                 .firstName("Ana")
@@ -119,7 +123,8 @@ class CustomerServiceTest {
     }
 
     @Test
-    public void getById_CustomerNotFound() {
+    @DisplayName("Should return empty when customer is not found")
+    public void getById_ShouldReturnEmpty_WhenCustomerNotFound() {
         when(customerRepository.findById(999)).thenReturn(Optional.empty());
 
         // Method under test
@@ -131,7 +136,8 @@ class CustomerServiceTest {
     }
 
     @Test
-    public void testUpdateCustomer_Success(){
+    @DisplayName("Should update customer successfully when customer exists")
+    public void updateCustomer_ShouldUpdateSuccessfully_WhenCustomerExists(){
         Integer id = 1;
 
         Customer existingCustomer = Customer.builder()
@@ -165,7 +171,8 @@ class CustomerServiceTest {
     }
 
     @Test
-    public void testUpdateCustomer_NotFound() {
+    @DisplayName("Should throw an exception when customer to update is not found")
+    public void updateCustomer_ShouldThrowException_WhenCustomerNotFound() {
         Integer id = 1;
 
         Customer updatedCustomer = Customer.builder()
@@ -188,7 +195,8 @@ class CustomerServiceTest {
     }
 
     @Test
-    void testDeleteCustomer_WithActiveAccounts() {
+    @DisplayName("Should throw an exception when the customer has active accounts")
+    void deleteCustomer_ShouldThrowException_WhenCustomerHasActiveAccounts() {
         Integer customerId = 1;
 
         ResponseEntity<Boolean> responseEntity = new ResponseEntity<>(true, HttpStatus.OK);
@@ -205,7 +213,8 @@ class CustomerServiceTest {
     }
 
     @Test
-    public void testDeleteCustomer_ServiceError() {
+    @DisplayName("Should throw an exception when there is a service error during customer deletion")
+    public void deleteCustomer_ShouldThrowException_WhenServiceErrorOccurs() {
         Integer customerId = 1;
 
         when(restTemplate.exchange(
@@ -224,7 +233,8 @@ class CustomerServiceTest {
     }
 
     @Test
-    public void testDeleteCustomer_NotFound() {
+    @DisplayName("Should throw an exception when the customer to delete is not found")
+    public void deleteCustomer_ShouldThrowException_WhenCustomerNotFound() {
         Integer customerId = 999;
 
         when(restTemplate.exchange(
@@ -245,7 +255,8 @@ class CustomerServiceTest {
     }
 
     @Test
-    public void testHasActiveAccounts_ReturnsTrue() {
+    @DisplayName("Should return true when the customer has active accounts")
+    public void hasActiveAccounts_ShouldReturnTrue_WhenCustomerHasActiveAccounts() {
         Integer customerId = 1;
         String url = "http://localhost:8081/accounts" + "/customer/" + customerId + "/active";
         ResponseEntity<Boolean> response = new ResponseEntity<>(true, HttpStatus.OK);
@@ -259,7 +270,8 @@ class CustomerServiceTest {
     }
 
     @Test
-    public void testDeleteCustomer_Success() {
+    @DisplayName("Should successfully delete the customer when found and no active accounts exist")
+    public void deleteCustomer_ShouldSuccessfullyDelete_WhenCustomerFound() {
         Integer customerId = 1;
         Customer customer = Customer.builder()
                 .customerId(1)
@@ -285,7 +297,8 @@ class CustomerServiceTest {
     }
 
     @Test
-    void testHasActiveAccounts_ResponseIsNull() {
+    @DisplayName("Should throw an exception when the response from the account service is null")
+    void hasActiveAccounts_ShouldThrowException_WhenResponseIsNull() {
         Integer customerId = 123;
         String url = "http://localhost:8081/accounts/customer/" + customerId + "/active";
 
@@ -299,7 +312,8 @@ class CustomerServiceTest {
     }
 
     @Test
-    void testHasActiveAccounts_ResponseBodyIsNull() {
+    @DisplayName("Should throw an exception when the response body from the account service is null")
+    void hasActiveAccounts_ShouldThrowException_WhenResponseBodyIsNull() {
         Integer customerId = 123;
         String url = "http://localhost:8081/accounts/customer/" + customerId + "/active";
 
@@ -313,7 +327,8 @@ class CustomerServiceTest {
     }
 
     @Test
-    void testHasActiveAccounts_BusinessExceptionRelanzada() {
+    @DisplayName("Should throw a BusinessException when an exception is thrown by the account service")
+    void hasActiveAccounts_ShouldThrowBusinessException_WhenExceptionIsThrown() {
         Integer customerId = 123;
         String url = "http://localhost:8081/accounts/customer/" + customerId + "/active";
 
