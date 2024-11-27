@@ -3,10 +3,9 @@ package com.bankingSystem.customer_ms.service;
 import com.bankingSystem.customer_ms.exceptions.BusinessException;
 import com.bankingSystem.customer_ms.model.Customer;
 import com.bankingSystem.customer_ms.repository.CustomerRepository;
+import com.bankingSystem.customer_ms.validators.CustomerValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.util.List;
@@ -29,7 +28,8 @@ public class CustomerService implements CrudService<Customer,Integer>{
     private String bankAccountMicroserviceUrl;
 
     private final CustomerRepository customerRepository;
-    private final ValidationService validationService;
+    private final CustomerValidator customerValidator;
+    private final BankAccountService bankAccountService;
     private final RestTemplate restTemplate;
 
     /**
@@ -62,16 +62,17 @@ public class CustomerService implements CrudService<Customer,Integer>{
      * @throws BusinessException if the customer with the given ID does not exist.
      */
     @Override
-    public void update(Integer id, Customer customer) {
-        customerRepository.findById(id)
-                .map(existingCustomer -> {
-                    existingCustomer.setFirstName(customer.getFirstName());
-                    existingCustomer.setLastName(customer.getLastName());
-                    existingCustomer.setEmail(customer.getEmail());
-                    return existingCustomer; })
-                .map(customerRepository::save)
-                .orElseThrow(() -> new BusinessException("Customer wasn't found with ID: " + id));
+    public Customer update(Integer id, Customer customer) {
+        customerValidator.validateCustomerData(customer);
+
+        if (customerRepository.existsById(id)) {
+            customer.setCustomerId(id);
+            return customerRepository.save(customer);
+        } else {
+            throw new BusinessException("Customer not found with id: " + id);
+        }
     }
+
 
     /**
      * Creates a new customer.
@@ -81,7 +82,7 @@ public class CustomerService implements CrudService<Customer,Integer>{
      */
     @Override
     public Customer create(Customer customer) {
-        validationService.validateCustomerData(customer);
+        customerValidator.validateCustomerData(customer);
         return customerRepository.save(customer);
     }
 
@@ -92,39 +93,20 @@ public class CustomerService implements CrudService<Customer,Integer>{
      * </p>
      *
      * @param customerId the ID of the customer to delete.
+     * @return
      * @throws BusinessException if the customer has active accounts or is not found.
      */
     @Override
-    public void delete(Integer customerId) {
-        customerRepository.findById(customerId).filter(customer -> !hasActiveAccounts(customerId))
+    public boolean delete(Integer customerId) {
+        customerRepository.findById(customerId).filter(customer -> !bankAccountService.hasActiveAccounts(customerId))
                 .ifPresentOrElse(
                         customer -> customerRepository.delete(customer),
                         () -> {
-                            if (hasActiveAccounts(customerId)) {
+                            if (bankAccountService.hasActiveAccounts(customerId)) {
                                 throw new BusinessException("Cannot delete customer with active accounts.");
                             }
                             throw new BusinessException(String.format("Customer with ID %d not found.", customerId));
-                        });}
-
-    /**
-     * Checks if a customer has any active bank accounts.
-     *
-     * @param customerId the ID of the customer to check.
-     * @return true if the customer has active accounts, false otherwise.
-     * @throws BusinessException if there is an error connecting to the bank account service.
-     */
-    public boolean hasActiveAccounts(Integer customerId) {
-        String url = "http://localhost:8081/accounts/customer/" + customerId + "/active";
-
-        try {
-            ResponseEntity<Boolean> response = restTemplate.exchange(url, HttpMethod.GET, null, Boolean.class);
-
-            return Optional.ofNullable(response)
-                    .map(ResponseEntity::getBody)
-                    .orElseThrow(() -> new BusinessException("Error connecting to bank account service: Response is null or invalid"));
-        } catch (Exception e) {
-            throw new BusinessException("Exception: " + e.getMessage());
-        }
+                        });
+        return false;
     }
-
 }

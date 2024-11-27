@@ -1,12 +1,10 @@
-package com.bankingSystem.customer_ms.service;
+package com.bankingSystem.customer_ms.validators;
 
 import com.bankingSystem.customer_ms.exceptions.BusinessException;
 import com.bankingSystem.customer_ms.model.Customer;
 import com.bankingSystem.customer_ms.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.function.Predicate;
 
 /**
  * Service class responsible for validating customer data.
@@ -17,17 +15,17 @@ import java.util.function.Predicate;
  * </p>
  */
 @Service
-public class ValidationService {
+public class CustomerValidator {
 
     private final CustomerRepository customerRepository;
 
     /**
-     * Constructs a new instance of {@link ValidationService}.
+     * Constructs a new instance of {@link CustomerValidator}.
      *
      * @param customerRepository the {@link CustomerRepository} used to check if a customer with a given DNI already exists.
      */
     @Autowired
-    public ValidationService(CustomerRepository customerRepository) {
+    public CustomerValidator(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
     }
 
@@ -45,29 +43,11 @@ public class ValidationService {
      * @throws BusinessException if any validation fails.
      */
     public void validateCustomerData(Customer customer) {
-        validate(customer.getFirstName(), field -> !field.isEmpty(), "FirstName is required.");
-        validate(customer.getLastName(), field -> !field.isEmpty(), "LastName is required.");
-        validate(customer.getDni(), dni -> dni.matches("[0-9]{8}"), "Invalid DNI format. It must contain exactly 8 digits.");
-        validate(customer.getEmail(), email -> email.matches("^[A-Za-z0-9_.-]+@[A-Za-z0-9.-]+$"), "Invalid email format. It must follow the format 'user123@mail.com'");
+        validateNotEmpty(customer.getFirstName(), "FirstName is required.");
+        validateNotEmpty(customer.getLastName(), "LastName is required.");
+        validatePattern(customer.getDni(), "[0-9]{8}", "Invalid DNI format. It must contain exactly 8 digits.");
+        validatePattern(customer.getEmail(), "^[A-Za-z0-9_.-]+@[A-Za-z0-9.-]+$", "Invalid email format.");
         validateUniqueDni(customer.getDni(), customer.getCustomerId());
-    }
-
-    /**
-     * A generic method that validates a given field against a specified predicate.
-     * <p>
-     * If the field is invalid (either null or not passing the predicate test), a {@link BusinessException} is thrown with the provided error message.
-     * </p>
-     *
-     * @param <T> the type of the field being validated.
-     * @param field the field to validate.
-     * @param predicate the predicate that defines the validation logic.
-     * @param errorMessage the error message to throw if the validation fails.
-     * @throws BusinessException if the field does not pass the validation.
-     */
-    private <T> void validate(T field, Predicate<T> predicate, String errorMessage) {
-        if (field == null || !predicate.test(field)) {
-            throw new BusinessException(errorMessage);
-        }
     }
 
     /**
@@ -87,5 +67,17 @@ public class ValidationService {
                 .ifPresent(existing -> {
                     throw new BusinessException("A client with this DNI already exists.");
                 });
+    }
+
+    private void validateNotEmpty(String field, String errorMessage) {
+        if (field == null || field.isEmpty()) {
+            throw new BusinessException(errorMessage);
+        }
+    }
+
+    private void validatePattern(String field, String pattern, String errorMessage) {
+        if (field == null || !field.matches(pattern)) {
+            throw new BusinessException(errorMessage);
+        }
     }
 }

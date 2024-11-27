@@ -29,14 +29,15 @@ public interface CrudService<T, I> {
      * @param id the identifier of the entity to be updated.
      * @param t the updated entity data.
      */
-    void update(I id, T t);
+    T update(I id, T t);
 
     /**
      * Deletes an entity by its identifier.
      *
      * @param id the identifier of the entity to be deleted.
+     * @return
      */
-    void delete(I id);
+    boolean delete(I id);
 
     /**
      * Retrieves an entity by its identifier.

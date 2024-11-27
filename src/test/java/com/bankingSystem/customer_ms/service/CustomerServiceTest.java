@@ -3,6 +3,7 @@ package com.bankingSystem.customer_ms.service;
 import com.bankingSystem.customer_ms.exceptions.BusinessException;
 import com.bankingSystem.customer_ms.model.Customer;
 import com.bankingSystem.customer_ms.repository.CustomerRepository;
+import com.bankingSystem.customer_ms.validators.CustomerValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +29,7 @@ class CustomerServiceTest {
     private CustomerRepository customerRepository;
 
     @Mock
-    private ValidationService validationService;
+    private CustomerValidator validationService;
 
     @Mock
     private RestTemplate restTemplate;
@@ -149,7 +150,7 @@ class CustomerServiceTest {
                 .build();
 
         Customer updatedCustomer = Customer.builder()
-                .customerId(null)
+                .customerId(1)
                 .firstName("Ana Victoria")
                 .lastName("Soto Mejia")
                 .dni("98765432")
@@ -163,7 +164,7 @@ class CustomerServiceTest {
         customerService.update(id, updatedCustomer);
 
         verify(customerRepository).findById(id);
-        verify(customerRepository).save(existingCustomer); // Verifica que save fue llamado
+        verify(customerRepository).save(existingCustomer);
 
         assertEquals("Ana Victoria", existingCustomer.getFirstName());
         assertEquals("Soto Mejia", existingCustomer.getLastName());
@@ -190,7 +191,7 @@ class CustomerServiceTest {
                 () -> customerService.update(id, updatedCustomer)
         );
 
-        assertEquals("Customer wasn't found with ID: " + id, exception.getMessage());
+        assertEquals("Customer not found with id: " + id, exception.getMessage());
 
     }
 

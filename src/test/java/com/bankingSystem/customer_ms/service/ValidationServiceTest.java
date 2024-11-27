@@ -4,6 +4,7 @@ package com.bankingSystem.customer_ms.service;
 import com.bankingSystem.customer_ms.exceptions.BusinessException;
 import com.bankingSystem.customer_ms.model.Customer;
 import com.bankingSystem.customer_ms.repository.CustomerRepository;
+import com.bankingSystem.customer_ms.validators.CustomerValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +23,7 @@ class ValidationServiceTest {
     private CustomerRepository customerRepository;
 
     @InjectMocks
-    private ValidationService validationService;
+    private CustomerValidator validationService;
 
     @BeforeEach
     void setUp() {

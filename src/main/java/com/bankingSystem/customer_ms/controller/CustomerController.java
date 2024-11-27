@@ -42,8 +42,8 @@ public class CustomerController {
      */
     @PostMapping
     public ResponseEntity<Customer> createCustomer(@RequestBody Customer customer) {
-        customerService.create(customer);
-        return new ResponseEntity<>(customer, HttpStatus.CREATED);
+        Customer createdCustomer = customerService.create(customer);
+        return new ResponseEntity<>(createdCustomer, HttpStatus.CREATED);
     }
 
     /**
@@ -69,13 +69,8 @@ public class CustomerController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<Customer> putCustomer(@PathVariable Integer id, @RequestBody Customer customer){
-        return customerService.getById(id)
-                .map(existingCustomer -> {
-                    customer.setCustomerId(id);
-                    customerService.update(id, customer);
-                    return new ResponseEntity<>(customer, HttpStatus.OK);
-                })
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        Customer updatedCustomer = customerService.update(id, customer); // El servicio valida y actualiza el cliente
+        return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
     }
 
     /**
@@ -86,11 +81,11 @@ public class CustomerController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Customer> deleteCustomer(@PathVariable Integer id) {
-        return customerService.getById(id)
-                .map(existingCustomer -> {
-                    customerService.delete(id);
-                    return new ResponseEntity<Customer>(HttpStatus.OK);
-                })
-                .orElseGet(() -> new ResponseEntity<Customer>(HttpStatus.NOT_FOUND));
+        boolean deleted = customerService.delete(id); // El servicio maneja la eliminación del cliente
+        if (deleted) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }
