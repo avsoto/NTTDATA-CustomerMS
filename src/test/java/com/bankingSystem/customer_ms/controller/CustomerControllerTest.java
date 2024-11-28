@@ -2,10 +2,12 @@ package com.bankingSystem.customer_ms.controller;
 
 import com.bankingSystem.customer_ms.model.Customer;
 import com.bankingSystem.customer_ms.service.CustomerService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -107,81 +109,87 @@ class CustomerControllerTest {
     }
 
     @Test
-    @DisplayName("Should return the updated customer when the customer is found and updated successfully")
-    void putCustomer_ShouldReturnUpdatedCustomer_WhenCustomerFound() {
-        Customer existingCustomer = Customer.builder()
-                .firstName("Ana")
-                .lastName("Soto")
-                .dni("98765432")
-                .email("ana.soto@mail.com")
-                .build();
+    void putCustomer_Success() {
+        // Arrange
+        Integer customerId = 1;
+        Customer customer = new Customer();
+        customer.setFirstName("John Doe");
+        customer.setEmail("john.doe@example.com");
 
-        Customer updatedCustomer = Customer.builder()
-                .firstName("Victoria")
-                .lastName("Mejía")
-                .dni("12345678")
-                .email("victoria.mejia@mail.com")
-                .build();
+        Customer updatedCustomer = new Customer();
+        updatedCustomer.setCustomerId(customerId);
+        updatedCustomer.setFirstName("John Doe Updated");
+        updatedCustomer.setEmail("john.doe.updated@example.com");
 
-        when(customerService.getById(1)).thenReturn(Optional.of(existingCustomer));
-        doNothing().when(customerService).update(1, updatedCustomer);
+        Mockito.when(customerService.update(customerId, customer)).thenReturn(updatedCustomer);
 
-        ResponseEntity<Customer> response = customerController.putCustomer(1, updatedCustomer);
+        // Act
+        ResponseEntity<Customer> response = customerController.putCustomer(customerId, customer);
 
+        // Assert
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(updatedCustomer, response.getBody());
+        Mockito.verify(customerService).update(customerId, customer);
+    }
+
+    @Test
+    void deleteCustomer_Success() {
+        // Arrange
+        Integer customerId = 1;
+
+        Mockito.when(customerService.delete(customerId)).thenReturn(true);
+
+        // Act
+        ResponseEntity<Customer> response = customerController.deleteCustomer(customerId);
+
+        // Assert
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Mockito.verify(customerService).delete(customerId);
+    }
+
+    @Test
+    void deleteCustomer_NotFound() {
+        // Arrange
+        Integer customerId = 1;
+
+        Mockito.when(customerService.delete(customerId)).thenReturn(false);
+
+        // Act
+        ResponseEntity<Customer> response = customerController.deleteCustomer(customerId);
+
+        // Assert
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        Mockito.verify(customerService).delete(customerId);
+    }
+
+    @Test
+    void customerExists_CustomerExists_ReturnsTrue() {
+        // Arrange
+        Integer customerId = 1;
+        Customer mockCustomer = new Customer();
+        when(customerService.getById(customerId)).thenReturn(Optional.of(mockCustomer));
+
+        // Act
+        ResponseEntity<Boolean> response = customerController.customerExists(customerId);
+
+        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(updatedCustomer, response.getBody());
-        verify(customerService, times(1)).getById(1);
-        verify(customerService, times(1)).update(1, updatedCustomer);
+        assertEquals(true, response.getBody());
+        verify(customerService, times(1)).getById(customerId);
     }
 
     @Test
-    @DisplayName("Should return NotFound when the customer to update is not found")
-    void putCustomer_ShouldReturnNotFound_WhenCustomerNotFound() {
-        Customer updatedCustomer = Customer.builder()
-                .firstName("Victoria")
-                .lastName("Mejía")
-                .dni("12345678")
-                .email("victoria.mejia@mail.com")
-                .build();
+    void customerExists_CustomerDoesNotExist_ReturnsFalse() {
+        // Arrange
+        Integer customerId = 2;
+        when(customerService.getById(customerId)).thenReturn(Optional.empty());
 
-        when(customerService.getById(1)).thenReturn(Optional.empty());
+        // Act
+        ResponseEntity<Boolean> response = customerController.customerExists(customerId);
 
-        ResponseEntity<Customer> response = customerController.putCustomer(1, updatedCustomer);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        verify(customerService, times(1)).getById(1);
-        verify(customerService, times(0)).update(anyInt(), any(Customer.class));
-    }
-
-    @Test
-    @DisplayName("Should return Ok when the customer is found and deleted successfully")
-    void deleteCustomer_ShouldReturnOk_WhenCustomerFound() {
-        Customer customer = Customer.builder()
-                .firstName("Ana")
-                .lastName("Soto")
-                .dni("98765432")
-                .email("ana.soto@mail.com")
-                .build();
-
-        when(customerService.getById(1)).thenReturn(Optional.of(customer));
-        doNothing().when(customerService).delete(1);
-
-        ResponseEntity<Customer> response = customerController.deleteCustomer(1);
-
+        // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(customerService, times(1)).getById(1);
-        verify(customerService, times(1)).delete(1);
-    }
-
-    @Test
-    @DisplayName("Should return NotFound when the customer to delete is not found")
-    void deleteCustomer_ShouldReturnNotFound_WhenCustomerNotFound() {
-        when(customerService.getById(1)).thenReturn(Optional.empty());
-
-        ResponseEntity<Customer> response = customerController.deleteCustomer(1);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        verify(customerService, times(1)).getById(1);
-        verify(customerService, times(0)).delete(anyInt());
+        assertEquals(false, response.getBody());
+        verify(customerService, times(1)).getById(customerId);
     }
 }

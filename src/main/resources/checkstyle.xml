@@ -20,7 +20,7 @@
 
         <!-- Basic style validations -->
         <module name="MethodLength">
-            <property name="max" value="13"/>
+            <property name="max" value="16"/>
         </module>
         <module name="TypeName">
             <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>

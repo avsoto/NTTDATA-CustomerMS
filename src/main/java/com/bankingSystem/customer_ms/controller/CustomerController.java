@@ -88,4 +88,11 @@ public class CustomerController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @GetMapping("/{id}/exists")
+    public ResponseEntity<Boolean> customerExists(@PathVariable Integer id) {
+        boolean exists = customerService.getById(id).isPresent();
+        return new ResponseEntity<>(exists, HttpStatus.OK);
+    }
+
 }

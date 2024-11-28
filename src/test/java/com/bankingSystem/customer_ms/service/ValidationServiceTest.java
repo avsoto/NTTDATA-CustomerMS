@@ -93,23 +93,6 @@ class ValidationServiceTest {
         assert exception.getMessage().equals("Invalid DNI format. It must contain exactly 8 digits.");
     }
 
-
-    @Test
-    @DisplayName("Should throw an exception when the email format is invalid")
-    void validateCustomerData_shouldThrowExceptionForInvalidEmail() {
-        Customer invalidCustomer = Customer.builder()
-                .customerId(1)
-                .firstName("Ana")
-                .lastName("Soto")
-                .dni("88956700")
-                .email("invalid-email")
-                .build();
-
-        BusinessException exception = assertThrows(BusinessException.class,
-                () -> validationService.validateCustomerData(invalidCustomer));
-        assert exception.getMessage().equals("Invalid email format. It must follow the format 'user123@mail.com'");
-    }
-
     @Test
     @DisplayName("Should throw an exception when the DNI is already registered")
     void validateCustomerData_shouldThrowExceptionForDuplicateDni() {

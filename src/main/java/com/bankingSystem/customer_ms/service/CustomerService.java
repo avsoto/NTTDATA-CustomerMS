@@ -98,15 +98,20 @@ public class CustomerService implements CrudService<Customer,Integer>{
      */
     @Override
     public boolean delete(Integer customerId) {
-        customerRepository.findById(customerId).filter(customer -> !bankAccountService.hasActiveAccounts(customerId))
-                .ifPresentOrElse(
-                        customer -> customerRepository.delete(customer),
-                        () -> {
-                            if (bankAccountService.hasActiveAccounts(customerId)) {
-                                throw new BusinessException("Cannot delete customer with active accounts.");
-                            }
-                            throw new BusinessException(String.format("Customer with ID %d not found.", customerId));
-                        });
-        return false;
+        try {
+            customerRepository.findById(customerId).filter(customer -> !bankAccountService.hasActiveAccounts(customerId))
+                    .ifPresentOrElse(
+                            customer -> customerRepository.delete(customer),
+                            () -> {
+                                if (bankAccountService.hasActiveAccounts(customerId)) {
+                                    throw new BusinessException("Cannot delete customer with active accounts.");
+                                }
+                                throw new BusinessException(String.format("Customer with ID %d not found.", customerId));
+                            });
+            return true;
+        } catch (RuntimeException e) {
+            throw new BusinessException("Exception: " + e.getMessage());
+        }
     }
+
 }

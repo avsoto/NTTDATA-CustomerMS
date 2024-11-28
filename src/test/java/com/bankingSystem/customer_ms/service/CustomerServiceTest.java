@@ -4,11 +4,13 @@ import com.bankingSystem.customer_ms.exceptions.BusinessException;
 import com.bankingSystem.customer_ms.model.Customer;
 import com.bankingSystem.customer_ms.repository.CustomerRepository;
 import com.bankingSystem.customer_ms.validators.CustomerValidator;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -36,6 +38,9 @@ class CustomerServiceTest {
 
     @InjectMocks
     private CustomerService customerService;
+
+    @Mock
+    private BankAccountService bankAccountService;
 
     @Value("${bankAccountMicroserviceUrl}")
     private String bankAccountMicroserviceUrl;
@@ -137,41 +142,6 @@ class CustomerServiceTest {
     }
 
     @Test
-    @DisplayName("Should update customer successfully when customer exists")
-    public void updateCustomer_ShouldUpdateSuccessfully_WhenCustomerExists(){
-        Integer id = 1;
-
-        Customer existingCustomer = Customer.builder()
-                .customerId(1)
-                .firstName("Ana")
-                .lastName("Soto")
-                .dni("98765432")
-                .email("ana.soto@mail.com")
-                .build();
-
-        Customer updatedCustomer = Customer.builder()
-                .customerId(1)
-                .firstName("Ana Victoria")
-                .lastName("Soto Mejia")
-                .dni("98765432")
-                .email("ana.soto@mail.com")
-                .build();
-
-        when(customerRepository.findById(id)).thenReturn(Optional.of(existingCustomer));
-        when(customerRepository.save(existingCustomer)).thenReturn(existingCustomer);
-
-        //Method under test
-        customerService.update(id, updatedCustomer);
-
-        verify(customerRepository).findById(id);
-        verify(customerRepository).save(existingCustomer);
-
-        assertEquals("Ana Victoria", existingCustomer.getFirstName());
-        assertEquals("Soto Mejia", existingCustomer.getLastName());
-        assertEquals("ana.soto@mail.com", existingCustomer.getEmail());
-    }
-
-    @Test
     @DisplayName("Should throw an exception when customer to update is not found")
     public void updateCustomer_ShouldThrowException_WhenCustomerNotFound() {
         Integer id = 1;
@@ -218,12 +188,7 @@ class CustomerServiceTest {
     public void deleteCustomer_ShouldThrowException_WhenServiceErrorOccurs() {
         Integer customerId = 1;
 
-        when(restTemplate.exchange(
-                eq("http://localhost:8081/accounts" + "/customer/" + customerId + "/active"),
-                eq(HttpMethod.GET),
-                isNull(),
-                eq(Boolean.class))
-        ).thenThrow(new RuntimeException("Connection error"));
+        when(customerRepository.findById(customerId)).thenThrow(new RuntimeException("Connection error"));
 
         BusinessException exception = assertThrows(
                 BusinessException.class,
@@ -234,112 +199,96 @@ class CustomerServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw an exception when the customer to delete is not found")
-    public void deleteCustomer_ShouldThrowException_WhenCustomerNotFound() {
-        Integer customerId = 999;
-
-        when(restTemplate.exchange(
-                eq("http://localhost:8081/accounts" + "/customer/" + customerId + "/active"),
-                eq(HttpMethod.GET),
-                isNull(),
-                eq(Boolean.class))
-        ).thenReturn(ResponseEntity.ok(false));
-
-        when(customerRepository.findById(customerId)).thenReturn(Optional.empty());
-
-        BusinessException exception = assertThrows(
-                BusinessException.class,
-                () -> customerService.delete(customerId)
-        );
-
-        assertEquals("Customer with ID 999 not found.", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Should return true when the customer has active accounts")
-    public void hasActiveAccounts_ShouldReturnTrue_WhenCustomerHasActiveAccounts() {
+    void updateCustomer_Success() {
+        // Arrange
         Integer customerId = 1;
-        String url = "http://localhost:8081/accounts" + "/customer/" + customerId + "/active";
-        ResponseEntity<Boolean> response = new ResponseEntity<>(true, HttpStatus.OK);
+        Customer existingCustomer = new Customer();
+        existingCustomer.setCustomerId(customerId);
 
-        when(restTemplate.exchange(eq(url), eq(HttpMethod.GET), isNull(), eq(Boolean.class)))
-                .thenReturn(response);
+        Customer updatedCustomer = new Customer();
+        updatedCustomer.setFirstName("Updated Name");
 
-        boolean result = customerService.hasActiveAccounts(customerId);
+        Mockito.when(customerRepository.existsById(customerId)).thenReturn(true);
+        Mockito.when(customerRepository.save(updatedCustomer)).thenReturn(updatedCustomer);
 
-        assertTrue(result, "Expected hasActiveAccounts to return true");
+        // Act
+        Customer result = customerService.update(customerId, updatedCustomer);
+
+        // Assert
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("Updated Name", result.getFirstName());
+        Mockito.verify(customerRepository).save(updatedCustomer);
     }
 
     @Test
-    @DisplayName("Should successfully delete the customer when found and no active accounts exist")
-    public void deleteCustomer_ShouldSuccessfullyDelete_WhenCustomerFound() {
+    void updateCustomer_NotFound_ThrowsException() {
+        // Arrange
         Integer customerId = 1;
-        Customer customer = Customer.builder()
-                .customerId(1)
-                .firstName("Ana Victoria")
-                .lastName("Soto Mejia")
-                .dni("98765432")
-                .email("ana.soto@mail.com")
-                .build();
+        Customer updatedCustomer = new Customer();
+        updatedCustomer.setFirstName("Updated Name");
 
-        when(restTemplate.exchange(
-                eq("http://localhost:8081/accounts" + "/customer/" + customerId + "/active"),
-                eq(HttpMethod.GET),
-                isNull(),
-                eq(Boolean.class))
-        ).thenReturn(new ResponseEntity<>(false, HttpStatus.OK));
+        Mockito.when(customerRepository.existsById(customerId)).thenReturn(false);
 
-        when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
+        // Act & Assert
+        BusinessException exception = Assertions.assertThrows(BusinessException.class,
+                () -> customerService.update(customerId, updatedCustomer));
 
-        customerService.delete(customerId);
-
-        verify(customerRepository).delete(customer);
-        verify(customerRepository).findById(customerId);
+        Assertions.assertEquals("Customer not found with id: " + customerId, exception.getMessage());
+        Mockito.verify(customerRepository, Mockito.never()).save(Mockito.any());
     }
 
     @Test
-    @DisplayName("Should throw an exception when the response from the account service is null")
-    void hasActiveAccounts_ShouldThrowException_WhenResponseIsNull() {
-        Integer customerId = 123;
-        String url = "http://localhost:8081/accounts/customer/" + customerId + "/active";
+    void deleteCustomer_NoActiveAccounts_Success() {
+        // Arrange
+        Integer customerId = 1;
+        Customer customer = new Customer();
+        customer.setCustomerId(customerId);
 
-        when(restTemplate.exchange(url, HttpMethod.GET, null, Boolean.class)).thenReturn(null);
+        Mockito.when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
+        Mockito.when(bankAccountService.hasActiveAccounts(customerId)).thenReturn(false);
 
-        BusinessException exception = assertThrows(BusinessException.class, () -> {
-            customerService.hasActiveAccounts(customerId);
-        });
+        // Act
+        boolean result = customerService.delete(customerId);
 
-        assertEquals("Exception: Error connecting to bank account service: Response is null or invalid", exception.getMessage());
+        // Assert
+        Assertions.assertTrue(result);
+        Mockito.verify(customerRepository).delete(customer);
     }
 
     @Test
-    @DisplayName("Should throw an exception when the response body from the account service is null")
-    void hasActiveAccounts_ShouldThrowException_WhenResponseBodyIsNull() {
-        Integer customerId = 123;
-        String url = "http://localhost:8081/accounts/customer/" + customerId + "/active";
+    void deleteCustomer_HasActiveAccounts_ThrowsException() {
+        // Arrange
+        Integer customerId = 1;
+        Customer customer = new Customer();
+        customer.setCustomerId(customerId);
 
-        when(restTemplate.exchange(url, HttpMethod.GET, null, Boolean.class)).thenReturn(ResponseEntity.ok(null));
+        Mockito.when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
+        Mockito.when(bankAccountService.hasActiveAccounts(customerId)).thenReturn(true);
 
-        BusinessException exception = assertThrows(BusinessException.class, () -> {
-            customerService.hasActiveAccounts(customerId);
-        });
+        // Act & Assert
+        BusinessException exception = Assertions.assertThrows(BusinessException.class,
+                () -> customerService.delete(customerId));
 
-        assertEquals("Exception: Error connecting to bank account service: Response is null or invalid", exception.getMessage());
+        Assertions.assertEquals("Exception: Cannot delete customer with active accounts.", exception.getMessage());
+        Mockito.verify(customerRepository, Mockito.never()).delete(Mockito.any());
     }
 
     @Test
-    @DisplayName("Should throw a BusinessException when an exception is thrown by the account service")
-    void hasActiveAccounts_ShouldThrowBusinessException_WhenExceptionIsThrown() {
-        Integer customerId = 123;
-        String url = "http://localhost:8081/accounts/customer/" + customerId + "/active";
+    void deleteCustomer_NotFound_ThrowsException() {
+        // Arrange
+        Integer customerId = 1;
 
-        BusinessException mockException = new BusinessException("Mocked BusinessException");
-        when(restTemplate.exchange(url, HttpMethod.GET, null, Boolean.class)).thenThrow(mockException);
+        Mockito.when(customerRepository.findById(customerId)).thenReturn(Optional.empty());
 
-        BusinessException exception = assertThrows(BusinessException.class, () -> {
-            customerService.hasActiveAccounts(customerId);
-        });
+        // Act & Assert
+        BusinessException exception = Assertions.assertThrows(BusinessException.class,
+                () -> customerService.delete(customerId));
 
-        assertEquals("Exception: Mocked BusinessException", exception.getMessage());
+        Assertions.assertEquals(String.format("Exception: Customer with ID %d not found.", customerId), exception.getMessage());
+        Mockito.verify(customerRepository, Mockito.never()).delete(Mockito.any());
     }
+
 }
+
+
+
