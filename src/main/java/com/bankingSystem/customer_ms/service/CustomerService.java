@@ -22,7 +22,7 @@ import java.util.Optional;
  */
 @Service
 @RequiredArgsConstructor
-public class CustomerService implements CrudService<Customer,Integer>{
+public class CustomerService implements CrudService<Customer, Integer> {
 
     @Value("${bankaccount.ms.url}")
     private String bankAccountMicroserviceUrl;
@@ -59,7 +59,12 @@ public class CustomerService implements CrudService<Customer,Integer>{
      *
      * @param id the ID of the customer to update.
      * @param customer the updated {@link Customer} data.
+     * @return the updated {@link Customer}.
      * @throws BusinessException if the customer with the given ID does not exist.
+     * <p>
+     * This method validates the customer data and updates the customer record in the repository.
+     * If the customer does not exist, a {@link BusinessException} is thrown.
+     * </p>
      */
     @Override
     public Customer update(Integer id, Customer customer) {
@@ -73,12 +78,14 @@ public class CustomerService implements CrudService<Customer,Integer>{
         }
     }
 
-
     /**
      * Creates a new customer.
      *
      * @param customer the {@link Customer} to create.
      * @return the created {@link Customer}.
+     * <p>
+     * This method validates the customer data and persists the new customer record.
+     * </p>
      */
     @Override
     public Customer create(Customer customer) {
@@ -93,8 +100,13 @@ public class CustomerService implements CrudService<Customer,Integer>{
      * </p>
      *
      * @param customerId the ID of the customer to delete.
-     * @return
+     * @return {@code true} if the customer was successfully deleted, otherwise {@code false}.
      * @throws BusinessException if the customer has active accounts or is not found.
+     * <p>
+     * This method checks if the customer has active bank accounts using the {@link BankAccountService}.
+     * If the customer has active accounts, deletion is not allowed, and a {@link BusinessException} is thrown.
+     * If the customer is not found, an exception is also thrown.
+     * </p>
      */
     @Override
     public boolean delete(Integer customerId) {

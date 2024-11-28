@@ -20,6 +20,9 @@ public interface CrudService<T, I> {
      *
      * @param t the entity to be created.
      * @return the created entity.
+     * <p>
+     * This method is used to create and persist a new entity of type {@link T}.
+     * </p>
      */
     T create(T t);
 
@@ -28,6 +31,10 @@ public interface CrudService<T, I> {
      *
      * @param id the identifier of the entity to be updated.
      * @param t the updated entity data.
+     * @return the updated entity.
+     * <p>
+     * This method updates an entity of type {@link T} using the provided identifier {@link I}.
+     * </p>
      */
     T update(I id, T t);
 
@@ -35,7 +42,10 @@ public interface CrudService<T, I> {
      * Deletes an entity by its identifier.
      *
      * @param id the identifier of the entity to be deleted.
-     * @return
+     * @return {@code true} if the entity was successfully deleted, {@code false} otherwise.
+     * <p>
+     * This method removes an entity of type {@link T} from the data store based on its identifier {@link I}.
+     * </p>
      */
     boolean delete(I id);
 
@@ -44,6 +54,9 @@ public interface CrudService<T, I> {
      *
      * @param id the identifier of the entity.
      * @return an {@link Optional} containing the entity, or an empty {@link Optional} if no entity with the given identifier exists.
+     * <p>
+     * This method retrieves an entity of type {@link T} from the data store using the provided identifier {@link I}.
+     * </p>
      */
     Optional<T> getById(I id);
 
@@ -51,6 +64,10 @@ public interface CrudService<T, I> {
      * Retrieves all entities.
      *
      * @return a list of all entities.
+     * <p>
+     * This method fetches a list of all entities of type {@link T} from the data store.
+     * </p>
      */
     List<T> getAll();
 }
+

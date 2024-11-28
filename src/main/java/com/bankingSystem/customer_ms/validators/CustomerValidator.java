@@ -41,6 +41,15 @@ public class CustomerValidator {
      *
      * @param customer the {@link Customer} object whose data is to be validated.
      * @throws BusinessException if any validation fails.
+     * <p>
+     * This method will throw a {@link BusinessException} if any of the following conditions are not met:
+     * <ul>
+     *     <li>The first name is empty.</li>
+     *     <li>The last name is empty.</li>
+     *     <li>The DNI is not exactly 8 digits.</li>
+     *     <li>The email format is invalid.</li>
+     * </ul>
+     * </p>
      */
     public void validateCustomerData(Customer customer) {
         validateNotEmpty(customer.getFirstName(), "FirstName is required.");
@@ -60,6 +69,10 @@ public class CustomerValidator {
      * @param dni the DNI to validate.
      * @param id the ID of the customer being updated, to allow the same DNI for an existing customer.
      * @throws BusinessException if a customer with the same DNI already exists (and it is not the same customer being updated).
+     * <p>
+     * This method checks if the given DNI already exists in the database. If another customer with the same DNI
+     * is found (and it is not the same customer being updated), a {@link BusinessException} will be thrown.
+     * </p>
      */
     private void validateUniqueDni(String dni, Integer id) {
         customerRepository.findByDni(dni)
@@ -69,12 +82,35 @@ public class CustomerValidator {
                 });
     }
 
+    /**
+     * Validates that a given field is not empty.
+     *
+     * @param field the field to check.
+     * @param errorMessage the error message to throw if the field is empty.
+     * @throws BusinessException if the field is empty.
+     * <p>
+     * This method checks if the provided field is null or empty and throws a {@link BusinessException} with the
+     * given error message if it is.
+     * </p>
+     */
     private void validateNotEmpty(String field, String errorMessage) {
         if (field == null || field.isEmpty()) {
             throw new BusinessException(errorMessage);
         }
     }
 
+    /**
+     * Validates that a given field matches a specific pattern.
+     *
+     * @param field the field to check.
+     * @param pattern the regex pattern to validate the field against.
+     * @param errorMessage the error message to throw if the field does not match the pattern.
+     * @throws BusinessException if the field does not match the pattern.
+     * <p>
+     * This method checks if the provided field matches the specified regex pattern and throws a
+     * {@link BusinessException} with the given error message if it does not.
+     * </p>
+     */
     private void validatePattern(String field, String pattern, String errorMessage) {
         if (field == null || !field.matches(pattern)) {
             throw new BusinessException(errorMessage);

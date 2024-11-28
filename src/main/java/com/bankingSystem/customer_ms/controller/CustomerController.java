@@ -69,7 +69,7 @@ public class CustomerController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<Customer> putCustomer(@PathVariable Integer id, @RequestBody Customer customer){
-        Customer updatedCustomer = customerService.update(id, customer); // El servicio valida y actualiza el cliente
+        Customer updatedCustomer = customerService.update(id, customer);
         return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
     }
 
@@ -81,7 +81,7 @@ public class CustomerController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Customer> deleteCustomer(@PathVariable Integer id) {
-        boolean deleted = customerService.delete(id); // El servicio maneja la eliminación del cliente
+        boolean deleted = customerService.delete(id);
         if (deleted) {
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
@@ -89,6 +89,12 @@ public class CustomerController {
         }
     }
 
+    /**
+     * Checks if a customer exists by their ID.
+     *
+     * @param id the ID of the customer to check for existence.
+     * @return a {@link ResponseEntity} containing a boolean value indicating whether the customer exists and an HTTP status of OK.
+     */
     @GetMapping("/{id}/exists")
     public ResponseEntity<Boolean> customerExists(@PathVariable Integer id) {
         boolean exists = customerService.getById(id).isPresent();
