@@ -4,6 +4,17 @@
 
 This microservice is part of a banking system designed to manage customers. The **Customer Microservice** allows the creation, retrieval, update, and deletion of customer information, including their personal details such as name, surname, DNI (ID), and email. This service communicates with other microservices in the banking system, such as the **Account Microservice**, to provide an integrated banking management solution.
 
+## Project Reports
+
+### SOLID Principles Report
+This report provides a detailed analysis of how the SOLID principles have been applied throughout the project. It includes explanations of each principle and examples of how they were implemented in the code to enhance maintainability, scalability, and readability.
+[SOLID Principles Report](https://docs.google.com/document/d/1tSSjcOaGNktm7uQvlNelBmg7FlEsAfO_/edit?usp=sharing&ouid=111308656360819493585&rtpof=true&sd=true)
+
+
+### Code Coverage Report
+The code coverage report outlines the extent of testing performed in the project, including unit tests and integration tests. It provides insights into the percentage of code covered by tests, highlighting areas that need additional testing to ensure robustness and reliability.
+[Code Coverage Report](https://docs.google.com/document/d/1zNvOwxqBcbkEUDoxmEIhLKotHEuPPfHO/edit?usp=sharing&ouid=111308656360819493585&rtpof=true&sd=true)
+
 ## Features
 
 This microservice implements the following features:

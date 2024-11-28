@@ -16,14 +16,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Customer"
+              $ref: "#/components/schemas/CustomerContract"
       responses:
         '201':
           description: "Customer successfully created"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Customer"
+                $ref: "#/components/schemas/CustomerContract"
     get:
       summary: "Get all customers"
       operationId: "getAllCustomers"
@@ -35,7 +35,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Customer"
+                  $ref: "#/components/schemas/CustomerContract"
   /customers/{id}:
     get:
       summary: "Get a customer by ID"
@@ -53,7 +53,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Customer"
+                $ref: "#/components/schemas/CustomerContract"
         '404':
           description: "Customer not found"
     put:
@@ -72,14 +72,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Customer"
+              $ref: "#/components/schemas/CustomerContract"
       responses:
         '200':
           description: "Customer successfully updated"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Customer"
+                $ref: "#/components/schemas/CustomerContract"
         '404':
           description: "Customer not found"
     delete:
